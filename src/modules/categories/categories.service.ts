@@ -10,6 +10,11 @@ const createCategory = async (
   return result;
 };
 
+const getCategory = async () => {
+  const result = await prisma.category.findMany();
+  return result;
+};
 export const categoriesService = {
   createCategory,
+  getCategory,
 };

@@ -3,11 +3,9 @@ import { categoriesService } from "./categories.service";
 
 const createCategory = async (req: Request, res: Response) => {
   try {
-    console.log("Body Data:", req.body);
     const result = await categoriesService.createCategory(req.body);
     res.status(201).json(result);
   } catch (e: any) {
-    console.error("FULL PRISMA ERROR:", e);
     res.status(400).json({
       Error: "category creation failed",
       details: e.message,
@@ -15,6 +13,22 @@ const createCategory = async (req: Request, res: Response) => {
   }
 };
 
+const getCategory = async (req: Request, res: Response) => {
+  try {
+    const result = await categoriesService.getCategory();
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: "false",
+      message: "category fetch failed",
+      Error: err,
+    });
+  }
+};
 export const categoriesController = {
   createCategory,
+  getCategory,
 };
