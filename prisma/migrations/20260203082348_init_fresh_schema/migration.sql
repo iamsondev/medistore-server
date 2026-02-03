@@ -3,7 +3,7 @@ CREATE TYPE "OrderStatus" AS ENUM ('PLACED', 'PROCESSING', 'SHIPPED', 'DELIVERED
 
 -- CreateTable
 CREATE TABLE "Category" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "name" VARCHAR(200) NOT NULL,
     "image" TEXT NOT NULL,
     "description" TEXT,
@@ -16,15 +16,15 @@ CREATE TABLE "Category" (
 
 -- CreateTable
 CREATE TABLE "Medicine" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "name" VARCHAR(200) NOT NULL,
     "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "stock" INTEGER NOT NULL,
     "manufacturer" VARCHAR(100) NOT NULL,
     "image" TEXT NOT NULL,
-    "sellerId" UUID NOT NULL,
-    "categoryId" UUID NOT NULL,
+    "sellerId" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -33,8 +33,8 @@ CREATE TABLE "Medicine" (
 
 -- CreateTable
 CREATE TABLE "Order" (
-    "id" UUID NOT NULL,
-    "customerId" UUID NOT NULL,
+    "id" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PLACED',
     "address" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,9 +45,9 @@ CREATE TABLE "Order" (
 
 -- CreateTable
 CREATE TABLE "OrderItem" (
-    "id" UUID NOT NULL,
-    "orderId" UUID NOT NULL,
-    "medicineId" UUID NOT NULL,
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "medicineId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
 
@@ -56,10 +56,10 @@ CREATE TABLE "OrderItem" (
 
 -- CreateTable
 CREATE TABLE "Review" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
     "comment" TEXT NOT NULL,
-    "medicineId" UUID NOT NULL,
+    "medicineId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

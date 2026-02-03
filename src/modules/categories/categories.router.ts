@@ -1,9 +1,8 @@
 import express, { Router } from "express";
+import { categoriesController } from "./categories.controller";
 
 const router = express.Router();
 
-router.post("/", (req, res) => {
-  res.send("create new post for categories");
-});
+router.post("/", categoriesController.createCategory);
 
 export const categoriesRouter: Router = router;
