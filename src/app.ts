@@ -3,6 +3,7 @@ import { categoriesRouter } from "./modules/categories/categories.router";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
+import { medicinesRouter } from "./modules/medicines/medicines.router";
 
 const app: Application = express();
 app.use(
@@ -14,7 +15,9 @@ app.use(
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
+
 app.use("/categories", categoriesRouter);
+app.use("/api/seller/medicines", medicinesRouter);
 app.get("/", (req, res) => {
   res.send("Hello, 2026");
 });
