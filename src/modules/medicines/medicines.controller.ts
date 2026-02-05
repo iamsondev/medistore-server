@@ -25,16 +25,20 @@ const addMedicine = async (req: Request, res: Response) => {
 
 const getAllMedicines = async (req: Request, res: Response) => {
   try {
-    const result = await medicinesService.getAllMedicines();
+    const { search } = req.query;
+    const searchString = typeof search === "string" ? search : undefined;
+    const result = await medicinesService.getAllMedicines({
+      search: searchString,
+    });
     res.status(200).json({
       success: true,
-      message: "medicine created successfully",
+      message: "medicine fetched successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(400).json({
       success: false,
-      message: "medicine creation failed",
+      message: "failed to fetched medicine",
       error: err.message,
     });
   }
