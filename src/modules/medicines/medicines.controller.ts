@@ -1,6 +1,25 @@
 import { Request, Response } from "express";
 import { medicinesService } from "./medicines.service";
-import { success } from "better-auth/*";
+import { z } from "zod";
+
+const createMedicineSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(5),
+  price: z.number().positive(),
+  stock: z.number().int().nonnegative(),
+  manufacturer: z.string().min(1),
+  image: z.string().url(),
+  categoryId: z.string().uuid(),
+});
+
+const getAllMedicinesSchema = z.object({
+  search: z.string().optional(),
+  minPrice: z.string().optional(),
+  maxPrice: z.string().optional(),
+  categoryId: z.string().uuid().optional(),
+  sortBy: z.enum(["price", "createdAt", "name"]).optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
 
 const addMedicine = async (req: Request, res: Response) => {
   try {
@@ -8,38 +27,57 @@ const addMedicine = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
-    const result = await medicinesService.addMedicine(req.body, user.id);
+
+    const parsedBody = createMedicineSchema.parse(req.body);
+
+    const result = await medicinesService.addMedicine(parsedBody, user.id);
+
     res.status(201).json({
       success: true,
-      message: "medicine created successfully",
+      message: "Medicine created successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(400).json({
       success: false,
-      message: "medicine creation failed",
-      error: err.message,
+      message: "Medicine creation failed",
+      error: err?.errors || err.message,
     });
   }
 };
 
 const getAllMedicines = async (req: Request, res: Response) => {
   try {
-    const { search } = req.query;
-    const searchString = typeof search === "string" ? search : undefined;
-    const result = await medicinesService.getAllMedicines({
-      search: searchString,
-    });
+    const parsedQuery = getAllMedicinesSchema.parse(req.query);
+
+    const minPrice = parsedQuery.minPrice
+      ? Number(parsedQuery.minPrice)
+      : undefined;
+    const maxPrice = parsedQuery.maxPrice
+      ? Number(parsedQuery.maxPrice)
+      : undefined;
+
+    const filters = {
+      search: parsedQuery.search,
+      minPrice,
+      maxPrice,
+      categoryId: parsedQuery.categoryId,
+      sortBy: parsedQuery.sortBy,
+      sortOrder: parsedQuery.sortOrder,
+    };
+
+    const result = await medicinesService.getAllMedicines(filters);
+
     res.status(200).json({
       success: true,
-      message: "medicine fetched successfully",
+      message: "Medicines fetched successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(400).json({
       success: false,
-      message: "failed to fetched medicine",
-      error: err.message,
+      message: "Failed to fetch medicines",
+      error: err?.errors || err.message,
     });
   }
 };
