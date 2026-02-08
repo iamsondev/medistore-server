@@ -19,14 +19,16 @@ const getAllMedicinesSchema = z.object({
   categoryId: z.string().uuid().optional(),
   sortBy: z.enum(["price", "createdAt", "name"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
+  page: z.string().optional(),
+  limit: z.string().optional(),
+  sellerId: z.string().optional(),
 });
 
 const addMedicine = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    if (!user) {
+    if (!user)
       return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
 
     const parsedBody = createMedicineSchema.parse(req.body);
 
@@ -50,28 +52,39 @@ const getAllMedicines = async (req: Request, res: Response) => {
   try {
     const parsedQuery = getAllMedicinesSchema.parse(req.query);
 
-    const minPrice = parsedQuery.minPrice
-      ? Number(parsedQuery.minPrice)
-      : undefined;
-    const maxPrice = parsedQuery.maxPrice
-      ? Number(parsedQuery.maxPrice)
-      : undefined;
+    const page = parsedQuery.page ? Number(parsedQuery.page) : 1;
+    const limit = parsedQuery.limit ? Number(parsedQuery.limit) : 10;
+    const skip = (page - 1) * limit;
+    console.log("page, limit, skip:", page, limit, skip);
 
     const filters = {
       search: parsedQuery.search,
-      minPrice,
-      maxPrice,
+      minPrice:
+        parsedQuery.minPrice !== undefined
+          ? Number(parsedQuery.minPrice)
+          : undefined,
+      maxPrice:
+        parsedQuery.maxPrice !== undefined
+          ? Number(parsedQuery.maxPrice)
+          : undefined,
       categoryId: parsedQuery.categoryId,
       sortBy: parsedQuery.sortBy,
       sortOrder: parsedQuery.sortOrder,
+      sellerId: parsedQuery.sellerId,
+      page,
+      limit,
+      skip,
     };
 
-    const result = await medicinesService.getAllMedicines(filters);
+    const result = await medicinesService.getAllMedicines(filters as any);
 
     res.status(200).json({
       success: true,
       message: "Medicines fetched successfully",
-      data: result,
+      data: result.medicines,
+      total: result.total,
+      page,
+      limit,
     });
   } catch (err: any) {
     res.status(400).json({
@@ -87,11 +100,10 @@ const getMedicineById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await medicinesService.getMedicineById(id as string);
 
-    if (!result) {
+    if (!result)
       return res
         .status(404)
         .json({ success: false, message: "Medicine not found" });
-    }
 
     res.status(200).json({
       success: true,
@@ -99,7 +111,7 @@ const getMedicineById = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(400).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, message: err.message });
   }
 };
 

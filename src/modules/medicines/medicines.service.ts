@@ -1,4 +1,4 @@
-import { Medicine } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 
 type AddMedicinePayload = {
@@ -21,57 +21,72 @@ const addMedicine = async (data: AddMedicinePayload, userId: string) => {
 };
 
 const getAllMedicines = async (payload: {
-  search?: string | undefined;
-  minPrice?: number | undefined;
-  maxPrice?: number | undefined;
-  categoryId?: string | undefined;
-  sortBy?: string | undefined;
-  sortOrder?: "asc" | "desc" | undefined;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  categoryId?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  sellerId?: string;
+  page?: number;
+  limit?: number;
 }) => {
-  const { search, minPrice, maxPrice, categoryId, sortBy, sortOrder } = payload;
+  const {
+    search,
+    minPrice,
+    maxPrice,
+    categoryId,
+    sortBy,
+    sortOrder,
+    sellerId,
+    page = 1,
+    limit = 10,
+  } = payload;
 
-  const whereConditions: any = {
-    AND: [
-      search
-        ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { manufacturer: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {},
-      categoryId ? { categoryId } : {},
-      minPrice !== undefined || maxPrice !== undefined
-        ? {
-            price: {
-              ...(minPrice !== undefined && { gte: minPrice }),
-              ...(maxPrice !== undefined && { lte: maxPrice }),
-            },
-          }
-        : {},
-    ],
-  };
+  const skip = (page - 1) * limit;
 
-  return await prisma.medicine.findMany({
+  const andConditions: Prisma.MedicineWhereInput[] = [];
+
+  if (sellerId) andConditions.push({ sellerId });
+  if (search)
+    andConditions.push({
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { manufacturer: { contains: search, mode: "insensitive" } },
+      ],
+    });
+  if (categoryId) andConditions.push({ categoryId });
+  if (minPrice !== undefined || maxPrice !== undefined)
+    andConditions.push({
+      price: {
+        ...(minPrice !== undefined && { gte: minPrice }),
+        ...(maxPrice !== undefined && { lte: maxPrice }),
+      },
+    });
+
+  const whereConditions =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const medicines = await prisma.medicine.findMany({
+    take: limit,
+    skip,
     where: whereConditions,
     orderBy: sortBy ? { [sortBy]: sortOrder || "asc" } : { createdAt: "desc" },
-    include: {
-      category: true,
-    },
+    include: { category: true },
   });
+
+  const total = await prisma.medicine.count({ where: whereConditions });
+
+  return { medicines, total };
 };
 
 const getMedicineById = async (id: string) => {
-  const result = await prisma.medicine.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      category: true,
-    },
+  return await prisma.medicine.findUnique({
+    where: { id },
+    include: { category: true },
   });
-  return result;
 };
+
 export const medicinesService = {
   addMedicine,
   getAllMedicines,
