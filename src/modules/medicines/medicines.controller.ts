@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { medicinesService } from "./medicines.service";
 import { z } from "zod";
+import { paginationHelpers } from "../../helpers/paginationSortingHelpers";
 
 const createMedicineSchema = z.object({
   name: z.string().min(1),
@@ -52,10 +53,16 @@ const getAllMedicines = async (req: Request, res: Response) => {
   try {
     const parsedQuery = getAllMedicinesSchema.parse(req.query);
 
-    const page = parsedQuery.page ? Number(parsedQuery.page) : 1;
-    const limit = parsedQuery.limit ? Number(parsedQuery.limit) : 10;
-    const skip = (page - 1) * limit;
-    console.log("page, limit, skip:", page, limit, skip);
+    const paginationOptions = {
+      page: parsedQuery.page ? Number(parsedQuery.page) : undefined,
+      limit: parsedQuery.limit ? Number(parsedQuery.limit) : undefined,
+      sortBy: parsedQuery.sortBy as string | undefined,
+      sortOrder: parsedQuery.sortOrder as "asc" | "desc" | undefined,
+    };
+
+    const pagination = paginationHelpers.calculatePagination(
+      paginationOptions as any,
+    );
 
     const filters = {
       search: parsedQuery.search,
@@ -68,12 +75,8 @@ const getAllMedicines = async (req: Request, res: Response) => {
           ? Number(parsedQuery.maxPrice)
           : undefined,
       categoryId: parsedQuery.categoryId,
-      sortBy: parsedQuery.sortBy,
-      sortOrder: parsedQuery.sortOrder,
       sellerId: parsedQuery.sellerId,
-      page,
-      limit,
-      skip,
+      ...pagination,
     };
 
     const result = await medicinesService.getAllMedicines(filters as any);
@@ -81,10 +84,12 @@ const getAllMedicines = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Medicines fetched successfully",
+      meta: {
+        total: result.total,
+        page: pagination.page,
+        limit: pagination.limit,
+      },
       data: result.medicines,
-      total: result.total,
-      page,
-      limit,
     });
   } catch (err: any) {
     res.status(400).json({
