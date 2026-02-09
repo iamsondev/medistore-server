@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { orderService } from "./orders.service";
+import { OrderValidation } from "./orders.validation";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
+    const validatedData = OrderValidation.createOrderSchema.parse(req.body);
     const user = (req as any).user;
-    const result = await orderService.createOrder(user.id, req.body);
+    const result = await orderService.createOrder(user.id, validatedData);
 
     res.status(201).json({
       success: true,
@@ -77,7 +79,7 @@ const getSellerOrders = async (req: Request, res: Response) => {
 const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status } = OrderValidation.updateStatusSchema.parse(req.body);
     const user = (req as any).user;
 
     const result = await orderService.updateOrderStatus(

@@ -6,6 +6,7 @@ import cors from "cors";
 import { medicinesRouter } from "./modules/medicines/medicines.router";
 import { OrdersRouter } from "./modules/orders/orders.route";
 import { ReviewsRouter } from "./modules/reviews/reviews.router";
+import globalErrorHandler from "./middlewares/globalErrorHandler";
 
 const app: Application = express();
 app.use(
@@ -25,5 +26,6 @@ app.use("/api/reviews", ReviewsRouter);
 app.get("/", (req, res) => {
   res.send("Hello, 2026");
 });
+app.use(globalErrorHandler);
 
 export default app;
