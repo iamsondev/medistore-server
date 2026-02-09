@@ -5,6 +5,7 @@ import { auth } from "./lib/auth";
 import cors from "cors";
 import { medicinesRouter } from "./modules/medicines/medicines.router";
 import { OrdersRouter } from "./modules/orders/orders.route";
+import { ReviewsRouter } from "./modules/reviews/reviews.router";
 
 const app: Application = express();
 app.use(
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/categories", categoriesRouter);
 app.use("/api/medicines", medicinesRouter);
 app.use("/api/orders", OrdersRouter);
+app.use("/api/reviews", ReviewsRouter);
 app.get("/", (req, res) => {
   res.send("Hello, 2026");
 });
