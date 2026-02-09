@@ -18,12 +18,13 @@ const getAllMedicinesSchema = z.object({
   minPrice: z.string().optional(),
   maxPrice: z.string().optional(),
   categoryId: z.string().uuid().optional(),
-  sortBy: z.enum(["price", "createdAt", "name"]).optional(),
+  sortBy: z.enum(["price", "createdAt", "name", "viewCount"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
   page: z.string().optional(),
   limit: z.string().optional(),
   sellerId: z.string().optional(),
 });
+const updateMedicineSchema = createMedicineSchema.partial();
 
 const addMedicine = async (req: Request, res: Response) => {
   try {
@@ -105,10 +106,12 @@ const getMedicineById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await medicinesService.getMedicineById(id as string);
 
-    if (!result)
-      return res
-        .status(404)
-        .json({ success: false, message: "Medicine not found" });
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Medicine not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -116,12 +119,66 @@ const getMedicineById = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(400).json({
+      success: false,
+      message: "Failed to fetch medicine",
+      error: err.message,
+    });
+  }
+};
+const updateMedicine = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+    if (!user)
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const parsedBody = updateMedicineSchema.parse(req.body);
+    const result = await medicinesService.updateMedicine(
+      id as string,
+      user.id,
+      parsedBody as any,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Medicine updated successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(400).json({
+      success: false,
+      message: "Update failed",
+      error: err?.errors || err.message,
+    });
   }
 };
 
+const deleteMedicine = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+    if (!user)
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    await medicinesService.deleteMedicine(id as string, user.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Medicine deleted successfully",
+    });
+  } catch (err: any) {
+    res.status(400).json({
+      success: false,
+      message: "Deletion failed",
+      error: err.message,
+    });
+  }
+};
 export const medicinesController = {
   addMedicine,
   getAllMedicines,
   getMedicineById,
+  updateMedicine,
+  deleteMedicine,
 };

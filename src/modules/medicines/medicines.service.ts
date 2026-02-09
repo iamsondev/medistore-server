@@ -16,6 +16,7 @@ const addMedicine = async (data: AddMedicinePayload, userId: string) => {
     data: {
       ...data,
       sellerId: userId,
+      viewCount: 0,
     },
   });
 };
@@ -71,7 +72,7 @@ const getAllMedicines = async (payload: {
     take: limit,
     skip,
     where: whereConditions,
-    orderBy: sortBy ? { [sortBy]: sortOrder || "asc" } : { createdAt: "desc" },
+    orderBy: sortBy ? { [sortBy]: sortOrder || "asc" } : { viewCount: "desc" },
     include: { category: true },
   });
 
@@ -81,9 +82,50 @@ const getAllMedicines = async (payload: {
 };
 
 const getMedicineById = async (id: string) => {
-  return await prisma.medicine.findUnique({
-    where: { id },
-    include: { category: true },
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.medicine.update({
+      where: { id },
+      data: {
+        viewCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    const medicineData = await tx.medicine.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        seller: true,
+      },
+    });
+
+    return medicineData;
+  });
+
+  return result;
+};
+
+const updateMedicine = async (
+  id: string,
+  userId: string,
+  data: Partial<AddMedicinePayload>,
+) => {
+  return await prisma.medicine.update({
+    where: {
+      id,
+      sellerId: userId, //
+    },
+    data,
+  });
+};
+
+const deleteMedicine = async (id: string, userId: string) => {
+  return await prisma.medicine.delete({
+    where: {
+      id,
+      sellerId: userId,
+    },
   });
 };
 
@@ -91,4 +133,6 @@ export const medicinesService = {
   addMedicine,
   getAllMedicines,
   getMedicineById,
+  updateMedicine,
+  deleteMedicine,
 };

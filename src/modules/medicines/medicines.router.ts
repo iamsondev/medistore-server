@@ -7,4 +7,10 @@ const router = express.Router();
 router.post("/", auth(userRole.SELLER), medicinesController.addMedicine);
 router.get("/", medicinesController.getAllMedicines);
 router.get("/:id", medicinesController.getMedicineById);
+router.put("/:id", auth(userRole.SELLER), medicinesController.updateMedicine);
+router.delete(
+  "/:id",
+  auth(userRole.SELLER),
+  medicinesController.deleteMedicine,
+);
 export const medicinesRouter: Router = router;
