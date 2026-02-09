@@ -1,20 +1,37 @@
-import { Category } from "../../../generated/prisma/client";
+import { Category } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const createCategory = async (
   data: Omit<Category, "id" | "createdAt" | "updatedAt">,
 ) => {
-  const result = await prisma.category.create({
+  return await prisma.category.create({
     data,
   });
-  return result;
 };
 
 const getCategory = async () => {
-  const result = await prisma.category.findMany();
-  return result;
+  return await prisma.category.findMany();
 };
+
+const updateCategory = async (
+  id: string,
+  data: Partial<Omit<Category, "id" | "createdAt" | "updatedAt">>,
+) => {
+  return await prisma.category.update({
+    where: { id },
+    data,
+  });
+};
+
+const deleteCategory = async (id: string) => {
+  return await prisma.category.delete({
+    where: { id },
+  });
+};
+
 export const categoriesService = {
   createCategory,
   getCategory,
+  updateCategory,
+  deleteCategory,
 };

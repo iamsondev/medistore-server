@@ -34,4 +34,42 @@ const getMedicineReviews = async (medicineId: string) => {
   });
 };
 
-export const ReviewService = { createReview, getMedicineReviews };
+const updateReview = async (
+  userId: string,
+  reviewId: string,
+  payload: { rating?: number; comment?: string },
+) => {
+  const isOwner = await prisma.review.findUnique({
+    where: { id: reviewId, userId: userId },
+  });
+
+  if (!isOwner) {
+    throw new Error("You are not authorized to update this review!");
+  }
+
+  return await prisma.review.update({
+    where: { id: reviewId },
+    data: payload,
+  });
+};
+
+const deleteReview = async (userId: string, reviewId: string) => {
+  const isOwner = await prisma.review.findUnique({
+    where: { id: reviewId, userId: userId },
+  });
+
+  if (!isOwner) {
+    throw new Error("You are not authorized to delete this review!");
+  }
+
+  return await prisma.review.delete({
+    where: { id: reviewId },
+  });
+};
+
+export const ReviewService = {
+  createReview,
+  getMedicineReviews,
+  updateReview,
+  deleteReview,
+};

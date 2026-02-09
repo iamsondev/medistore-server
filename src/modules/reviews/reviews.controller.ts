@@ -33,4 +33,53 @@ const getMedicineReviews = async (req: Request, res: Response) => {
   }
 };
 
-export const ReviewController = { createReview, getMedicineReviews };
+const updateReview = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user.id;
+    const result = await ReviewService.updateReview(
+      userId,
+      id as string,
+      req.body,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Review updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteReview = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user.id;
+    await ReviewService.deleteReview(userId, id as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Review deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const ReviewController = {
+  createReview,
+  getMedicineReviews,
+  updateReview,
+  deleteReview,
+};

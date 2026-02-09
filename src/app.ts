@@ -7,6 +7,8 @@ import { medicinesRouter } from "./modules/medicines/medicines.router";
 import { OrdersRouter } from "./modules/orders/orders.route";
 import { ReviewsRouter } from "./modules/reviews/reviews.router";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
+import notFound from "./middlewares/notFound";
+import { AdminRouter } from "./modules/admin/admin.router";
 
 const app: Application = express();
 app.use(
@@ -23,9 +25,11 @@ app.use("/categories", categoriesRouter);
 app.use("/api/medicines", medicinesRouter);
 app.use("/api/orders", OrdersRouter);
 app.use("/api/reviews", ReviewsRouter);
+app.use("/api/admin", AdminRouter);
 app.get("/", (req, res) => {
   res.send("Hello, 2026");
 });
+app.use(notFound);
 app.use(globalErrorHandler);
 
 export default app;
