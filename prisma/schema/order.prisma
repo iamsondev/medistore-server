@@ -1,0 +1,21 @@
+model Order {
+  id            String      @id @default(uuid())
+  customerId    String
+  status        OrderStatus @default(PLACED)
+  address       String      @db.Text
+  paymentMethod String      @default("Cash On Delivery")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}

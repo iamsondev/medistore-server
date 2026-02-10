@@ -15,6 +15,16 @@ const createReview = async (
   if (!hasPurchased) {
     throw new Error("you can write review your bought medicine");
   }
+  const alreadyReviewed = await prisma.review.findFirst({
+    where: {
+      userId: userId,
+      medicineId: data.medicineId,
+    },
+  });
+
+  if (alreadyReviewed) {
+    throw new Error("You have already submitted a review for this medicine.");
+  }
 
   return await prisma.review.create({
     data: {

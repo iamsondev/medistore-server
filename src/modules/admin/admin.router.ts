@@ -4,6 +4,8 @@ import { AdminController } from "./admin.controller";
 
 const router = express.Router();
 
+router.get("/statistics", auth(userRole.ADMIN), AdminController.getStatistics);
+
 router.get("/users", auth(userRole.ADMIN), AdminController.getAllUsers);
 
 router.patch(

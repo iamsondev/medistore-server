@@ -10,6 +10,18 @@ const createOrder = async (
   const { address, items } = payload;
 
   return await prisma.$transaction(async (tx) => {
+    for (const item of items) {
+      const medicine = await tx.medicine.findUnique({
+        where: { id: item.medicineId },
+      });
+
+      if (!medicine || medicine.stock < item.quantity) {
+        throw new Error(
+          `Insufficient stock for ${medicine?.name || "selected medicine"}. Available: ${medicine?.stock || 0}`,
+        );
+      }
+    }
+
     const order = await tx.order.create({
       data: {
         customerId: userId,

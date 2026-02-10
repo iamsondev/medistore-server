@@ -38,4 +38,26 @@ const updateUserStatus = async (
   }
 };
 
-export const AdminController = { getAllUsers, updateUserStatus };
+const getStatistics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await AdminService.getPlatformStatistics();
+
+    res.status(200).json({
+      success: true,
+      message: "Platform statistics retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const AdminController = {
+  getAllUsers,
+  updateUserStatus,
+  getStatistics,
+};
