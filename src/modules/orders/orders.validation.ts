@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const paymentMethodEnum = z.enum(["COD", "ONLINE"]);
+const paymentMethodEnum = z.enum(["Cash On Delivery", "ONLINE"]);
 
 const createOrderSchema = z
   .object({
