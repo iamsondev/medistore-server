@@ -55,7 +55,7 @@ export declare const orderService: {
         address: string;
         paymentMethod: string;
     })[]>;
-    getOrderById: (orderId: string, userId: string) => Promise<({
+    getOrderById: (orderId: string, userId: string) => Promise<{
         orderItems: ({
             medicine: {
                 name: string;
@@ -86,7 +86,7 @@ export declare const orderService: {
         customerId: string;
         address: string;
         paymentMethod: string;
-    }) | null>;
+    }>;
     getSellerOrders: (sellerId: string) => Promise<({
         orderItems: ({
             medicine: {
@@ -128,5 +128,37 @@ export declare const orderService: {
         address: string;
         paymentMethod: string;
     }>;
+    getAllOrders: () => Promise<({
+        orderItems: ({
+            medicine: {
+                name: string;
+                id: string;
+                image: string;
+                description: string;
+                createdAt: Date;
+                updatedAt: Date;
+                price: number;
+                stock: number;
+                viewCount: number;
+                manufacturer: string;
+                sellerId: string;
+                categoryId: string;
+            };
+        } & {
+            id: string;
+            price: number;
+            quantity: number;
+            medicineId: string;
+            orderId: string;
+        })[];
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        customerId: string;
+        address: string;
+        paymentMethod: string;
+    })[]>;
 };
 //# sourceMappingURL=orders.service.d.ts.map

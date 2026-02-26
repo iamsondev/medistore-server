@@ -1,6 +1,6 @@
 import express from "express";
-import auth, { userRole } from "../../middlewares/auth";
-import { AdminController } from "./admin.controller";
+import auth, { userRole } from "../../middlewares/auth.js";
+import { AdminController } from "./admin.controller.js";
 const router = express.Router();
 router.get("/statistics", auth(userRole.ADMIN), AdminController.getStatistics);
 router.get("/users", auth(userRole.ADMIN), AdminController.getAllUsers);

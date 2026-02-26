@@ -59,7 +59,7 @@ export declare const medicinesService: {
         })[];
         total: number;
     }>;
-    getMedicineById: (id: string) => Promise<({
+    getMedicineById: (id: string) => Promise<{
         category: {
             name: string;
             id: string;
@@ -93,7 +93,7 @@ export declare const medicinesService: {
         manufacturer: string;
         sellerId: string;
         categoryId: string;
-    }) | null>;
+    }>;
     updateMedicine: (id: string, userId: string, data: Partial<AddMedicinePayload>) => Promise<{
         name: string;
         id: string;

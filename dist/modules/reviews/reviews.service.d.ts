@@ -14,8 +14,8 @@ export declare const ReviewService: {
     }>;
     getMedicineReviews: (medicineId: string) => Promise<({
         User: {
-            name: string | null;
-            image: string | null;
+            name: string;
+            image: string;
         };
     } & {
         id: string;

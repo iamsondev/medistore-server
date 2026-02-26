@@ -1,6 +1,6 @@
-import { medicinesService } from "./medicines.service";
+import { medicinesService } from "./medicines.service.js";
 import { z } from "zod";
-import { paginationHelpers } from "../../helpers/paginationSortingHelpers";
+import { paginationHelpers } from "../../helpers/paginationSortingHelpers.js";
 const createMedicineSchema = z.object({
     name: z.string().min(1),
     description: z.string().min(5),

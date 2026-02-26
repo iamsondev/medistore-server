@@ -1,6 +1,6 @@
 import express from "express";
-import auth, { userRole } from "../../middlewares/auth";
-import { ReviewController } from "./reviews.controller";
+import auth, { userRole } from "../../middlewares/auth.js";
+import { ReviewController } from "./reviews.controller.js";
 const router = express.Router();
 router.post("/", auth(userRole.CUSTOMER), ReviewController.createReview);
 router.get("/:medicineId", ReviewController.getMedicineReviews);

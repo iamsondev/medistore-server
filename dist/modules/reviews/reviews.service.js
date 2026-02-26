@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const createReview = async (userId, data) => {
     const hasPurchased = await prisma.order.findFirst({
         where: {

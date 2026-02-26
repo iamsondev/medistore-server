@@ -1,4 +1,4 @@
-import { auth as betterAuth } from "../lib/auth";
+import { auth as betterAuth } from "../lib/auth.js";
 export var userRole;
 (function (userRole) {
     userRole["CUSTOMER"] = "CUSTOMER";

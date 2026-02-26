@@ -1,5 +1,5 @@
-import { ReviewService } from "./reviews.service";
-import { ReviewValidation } from "./reviews.validation";
+import { ReviewService } from "./reviews.service.js";
+import { ReviewValidation } from "./reviews.validation.js";
 const createReview = async (req, res, next) => {
     try {
         const validatedData = ReviewValidation.createReviewSchema.parse(req.body);
@@ -12,7 +12,6 @@ const createReview = async (req, res, next) => {
         });
     }
     catch (error) {
-        res.status(400).json({ success: false, message: error.message });
         next(error);
     }
 };

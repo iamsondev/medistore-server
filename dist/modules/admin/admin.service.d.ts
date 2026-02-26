@@ -1,10 +1,10 @@
 export declare const AdminService: {
     getAllUsersFromDB: () => Promise<{
-        name: string | null;
+        name: string;
         id: string;
         createdAt: Date;
-        role: string | null;
-        status: string | null;
+        role: string;
+        status: string;
         email: string;
     }[]>;
     updateUserStatusInDB: (id: string, status: string) => Promise<{

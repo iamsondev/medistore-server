@@ -17,6 +17,6 @@ declare global {
         }
     }
 }
-declare const auth: (...roles: userRole[]) => (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
+declare const auth: (...roles: userRole[]) => (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>>>;
 export default auth;
 //# sourceMappingURL=auth.d.ts.map

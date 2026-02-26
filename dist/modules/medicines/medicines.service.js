@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const addMedicine = async (data, userId) => {
     return prisma.medicine.create({
         data: {
@@ -66,18 +66,27 @@ const updateMedicine = async (id, userId, data) => {
     return await prisma.medicine.update({
         where: {
             id,
-            sellerId: userId, //
+            sellerId: userId,
         },
         data,
     });
 };
 const deleteMedicine = async (id, userId) => {
-    return await prisma.medicine.delete({
-        where: {
-            id,
-            sellerId: userId,
-        },
-    });
+    console.log("DB delete - id:", id, "userId:", userId);
+    try {
+        const result = await prisma.medicine.delete({
+            where: {
+                id,
+                sellerId: userId,
+            },
+        });
+        console.log("Deleted:", result);
+        return result;
+    }
+    catch (err) {
+        console.log("Prisma delete error:", err);
+        throw err;
+    }
 };
 export const medicinesService = {
     addMedicine,

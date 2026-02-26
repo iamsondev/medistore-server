@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const createOrder = async (userId, payload) => {
     const { address, items } = payload;
     return await prisma.$transaction(async (tx) => {
@@ -102,11 +102,23 @@ const updateOrderStatus = async (orderId, sellerId, status) => {
         data: { status: status },
     });
 };
+const getAllOrders = async () => {
+    const orders = await prisma.order.findMany({
+        include: {
+            orderItems: {
+                include: { medicine: true },
+            },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+    return orders;
+};
 export const orderService = {
     createOrder,
     getMyOrders,
     getOrderById,
     getSellerOrders,
     updateOrderStatus,
+    getAllOrders,
 };
 //# sourceMappingURL=orders.service.js.map

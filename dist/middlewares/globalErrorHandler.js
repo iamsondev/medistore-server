@@ -1,6 +1,6 @@
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
-import AppError from "../Error/appError";
+import AppError from "../Error/appError.js";
 const globalErrorHandler = (err, req, res, next) => {
     let statusCode = 500;
     let message = "Something went wrong!";

@@ -1,5 +1,5 @@
-import { orderService } from "./orders.service";
-import { OrderValidation } from "./orders.validation";
+import { orderService } from "./orders.service.js";
+import { OrderValidation } from "./orders.validation.js";
 const createOrder = async (req, res) => {
     try {
         const validatedData = OrderValidation.createOrderSchema.parse(req.body);
@@ -18,7 +18,6 @@ const createOrder = async (req, res) => {
         });
     }
 };
-// orders.controller.ts
 const getMyOrders = async (req, res) => {
     try {
         const user = req.user;
@@ -84,11 +83,21 @@ const updateOrderStatus = async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+const getAllOrders = async (req, res) => {
+    try {
+        const result = await orderService.getAllOrders();
+        res.status(200).json({ success: true, data: result });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 export const OrderController = {
     createOrder,
     getMyOrders,
     getOrderById,
     getSellerOrders,
     updateOrderStatus,
+    getAllOrders,
 };
 //# sourceMappingURL=orders.controller.js.map
