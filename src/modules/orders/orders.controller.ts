@@ -21,7 +21,6 @@ const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-// orders.controller.ts
 const getMyOrders = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
@@ -97,10 +96,19 @@ const updateOrderStatus = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+const getAllOrders = async (req: Request, res: Response) => {
+  try {
+    const result = await orderService.getAllOrders();
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 export const OrderController = {
   createOrder,
   getMyOrders,
   getOrderById,
   getSellerOrders,
   updateOrderStatus,
+  getAllOrders,
 };

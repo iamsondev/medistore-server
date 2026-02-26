@@ -5,7 +5,7 @@ model OrderItem {
   quantity   Int
   price      Float
   order      Order    @relation(fields: [orderId], references: [id])
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([medicineId])
