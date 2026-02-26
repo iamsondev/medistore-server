@@ -1,7 +1,7 @@
 import { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
-import AppError from "../Error/appError";
+import AppError from "../Error/appError.js";
 
 type TErrorSources = {
   path: string | number;

@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
-import { userRole } from "../middlewares/auth";
+import { prisma } from "../lib/prisma.js";
+import { userRole } from "../middlewares/auth.js";
 import dotenv from "dotenv";
 dotenv.config();
 

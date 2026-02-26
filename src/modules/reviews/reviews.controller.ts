@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ReviewService } from "./reviews.service";
-import { ReviewValidation } from "./reviews.validation";
+import { ReviewService } from "./reviews.service.js";
+import { ReviewValidation } from "./reviews.validation.js";
 
 const createReview = async (
   req: Request,
