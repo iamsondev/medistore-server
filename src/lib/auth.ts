@@ -147,6 +147,7 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_URL!,
     process.env.APP_URL!,
     "https://medistore-client-bice.vercel.app",
+    "https://medistore-server-fawn.vercel.app",
     "http://localhost:5000",
     "http://localhost:3000",
   ],
