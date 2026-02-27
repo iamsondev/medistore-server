@@ -13,7 +13,11 @@ import { AdminRouter } from "./modules/admin/admin.router.js";
 const app: Application = express();
 app.use(
   cors({
-    origin: process.env.APP_URL || "http://localhost:5000",
+    origin: [
+      "https://medistore-client-bice.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5000",
+    ],
     credentials: true,
   }),
 );

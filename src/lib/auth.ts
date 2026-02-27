@@ -20,6 +20,16 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+    },
+  },
+
   user: {
     additionalFields: {
       role: {
@@ -131,5 +141,10 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [process.env.BETTER_AUTH_URL!, process.env.APP_URL!],
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL!,
+    process.env.APP_URL!,
+    "http://localhost:5000",
+    "http://localhost:3000",
+  ],
 });
