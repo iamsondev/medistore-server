@@ -21,6 +21,17 @@ app.use(
     credentials: true,
   }),
 );
+app.options(
+  "*",
+  cors({
+    origin: [
+      "https://medistore-client-bice.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5000",
+    ],
+    credentials: true,
+  }),
+);
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
