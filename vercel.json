@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "pnpm build",
   "builds": [
     {
       "src": "dist/server.js",
       "use": "@vercel/node",
       "config": {
+        "buildCommand": "pnpm build",
         "includeFiles": ["dist/**/*"],
         "maxLambdaSize": "50mb"
       }
