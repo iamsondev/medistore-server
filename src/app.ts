@@ -9,6 +9,7 @@ import { ReviewsRouter } from "./modules/reviews/reviews.router.js";
 import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import notFound from "./middlewares/notFound.js";
 import { AdminRouter } from "./modules/admin/admin.router.js";
+import { fromNodeHeaders } from "better-auth/node";
 
 const app: Application = express();
 const corsOptions = {
@@ -25,7 +26,25 @@ app.options("*", cors(corsOptions));
 
 app.options("/api/auth/*", cors(corsOptions));
 
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*splat", async (req, res) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://medistore-client-bice.vercel.app",
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Cookie",
+  );
+
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+  return toNodeHandler(auth)(req, res);
+});
 app.use(express.json());
 app.use("/api/categories", categoriesRouter);
 app.use("/api/medicines", medicinesRouter);
