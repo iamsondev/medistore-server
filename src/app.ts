@@ -23,11 +23,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-app.all("/api/auth/*splat", (req, res, next) => {
-  cors(corsOptions)(req, res, () => {
-    toNodeHandler(auth)(req, res);
-  });
-});
+app.options("/api/auth/*", cors(corsOptions));
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 app.use("/api/categories", categoriesRouter);
 app.use("/api/medicines", medicinesRouter);
