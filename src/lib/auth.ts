@@ -142,13 +142,15 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       redirectURI:
-        `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
+        `${process.env.APP_URL}/api/auth/callback/google`,
     },
   },
 
   trustedOrigins: [
     process.env.BETTER_AUTH_URL!,
     process.env.APP_URL!,
+    process.env.CLIENT_URL!,
+    "https://medistore-client-bice.vercel.app",
     "http://localhost:5000",
     "http://localhost:3000",
   ],
