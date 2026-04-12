@@ -6,6 +6,7 @@ const router = express.Router();
 router.post("/", auth(userRole.CUSTOMER), ReviewController.createReview);
 
 router.get("/", auth(userRole.ADMIN, userRole.MODERATOR), ReviewController.getAllReviews);
+router.get("/public/all", ReviewController.getAllReviews);
 router.get("/:medicineId", ReviewController.getMedicineReviews);
 router.patch("/:id", auth(userRole.CUSTOMER), ReviewController.updateReview);
 

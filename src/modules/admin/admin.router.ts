@@ -5,6 +5,7 @@ import { AdminController } from "./admin.controller.js";
 const router = express.Router();
 
 router.get("/statistics", auth(userRole.ADMIN, userRole.MODERATOR), AdminController.getStatistics);
+router.get("/public-statistics", AdminController.getStatistics);
 
 router.get("/users", auth(userRole.ADMIN, userRole.MODERATOR), AdminController.getAllUsers);
 
