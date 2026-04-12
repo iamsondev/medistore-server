@@ -39,8 +39,27 @@ const verify = async (req: Request, res: Response) => {
   }
 };
 
+const createPaymentIntent = async (req: Request, res: Response) => {
+  try {
+    const { amount } = req.body;
+    const result = await paymentService.createPaymentIntent(amount);
+
+    res.status(200).json({
+      success: true,
+      message: "Payment intent created",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+  }
+};
+
 export const paymentController = {
   checkout,
   verify,
+  createPaymentIntent,
 };
 
