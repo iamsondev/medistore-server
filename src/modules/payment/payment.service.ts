@@ -1,7 +1,12 @@
 import Stripe from "stripe";
 import { prisma } from "../../lib/prisma.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+// Lazy initialization to prevent module crash if STRIPE_SECRET_KEY is missing at startup
+const getStripe = () => {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not configured.");
+  return new Stripe(key);
+};
 
 const createCheckoutSession = async (orderId: string, userId: string) => {
   const order = await prisma.order.findUnique({
@@ -23,7 +28,7 @@ const createCheckoutSession = async (orderId: string, userId: string) => {
 
   const clientUrl = process.env.CLIENT_URL || process.env.APP_URL || "http://localhost:5000";
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: order.orderItems.map((item) => ({
       price_data: {
@@ -48,7 +53,7 @@ const createCheckoutSession = async (orderId: string, userId: string) => {
 };
 
 const verifyPayment = async (sessionId: string) => {
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
   if (session.payment_status === "paid") {
     const orderId = session.metadata?.orderId;
@@ -69,7 +74,7 @@ const verifyPayment = async (sessionId: string) => {
 };
 
 const createPaymentIntent = async (amount: number) => {
-  const paymentIntent = await stripe.paymentIntents.create({
+  const paymentIntent = await getStripe().paymentIntents.create({
     amount: Math.round(amount * 100),
     currency: "usd",
     payment_method_types: ["card"],
