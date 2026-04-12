@@ -9,9 +9,19 @@ model User {
   sessions      Session[]
   accounts      Account[]
   medicines     Medicine[]
-  role          String?    @default("CUSTOMER")
+  role          Role       @default(CUSTOMER)
   status        String?    @default("ACTIVE")
   reviews       Review[]
+  orders             Order[] @relation("CustomerOrders")
+  assignedDeliveries Order[] @relation("AgentOrders")
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  SELLER
+  CUSTOMER
+  DELIVERY_AGENT
 }
 
 model Session {

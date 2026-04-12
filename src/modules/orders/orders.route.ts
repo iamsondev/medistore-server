@@ -18,9 +18,19 @@ router.get(
 );
 router.patch(
   "/:id/status",
-  auth(userRole.SELLER),
+  auth(userRole.SELLER, userRole.DELIVERY_AGENT, userRole.ADMIN),
   OrderController.updateOrderStatus,
 );
 router.get("/admin/all", auth(userRole.ADMIN), OrderController.getAllOrders);
+router.get(
+  "/delivery/my-orders",
+  auth(userRole.DELIVERY_AGENT),
+  OrderController.getMyAssignedOrders,
+);
+router.get(
+  "/delivery/history",
+  auth(userRole.DELIVERY_AGENT),
+  OrderController.getDeliveryHistory,
+);
 
 export const OrdersRouter: Router = router;

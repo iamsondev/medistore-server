@@ -22,11 +22,18 @@ const createOrder = async (
       }
     }
 
+    const totalAmount = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+
     const order = await tx.order.create({
       data: {
         customerId: userId,
         address,
         status: "PLACED",
+        totalAmount,
+        paymentStatus: "PENDING",
         orderItems: {
           create: items.map((item) => ({
             medicineId: item.medicineId,
@@ -103,17 +110,24 @@ const getSellerOrders = async (sellerId: string) => {
 
 const updateOrderStatus = async (
   orderId: string,
-  sellerId: string,
+  userId: string,
   status: string,
+  deliveryAgentId?: string,
 ) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  
   const order = await prisma.order.findFirst({
     where: {
       id: orderId,
-      orderItems: {
-        some: {
-          medicine: { sellerId: sellerId },
-        },
-      },
+      ...(user?.role === "ADMIN" ? {} : 
+         user?.role === "DELIVERY_AGENT" ? { deliveryAgentId: userId } :
+         {
+           orderItems: {
+             some: {
+               medicine: { sellerId: userId },
+             },
+           },
+         })
     },
   });
 
@@ -125,12 +139,16 @@ const updateOrderStatus = async (
 
   return await prisma.order.update({
     where: { id: orderId },
-    data: { status: status as any },
+    data: { 
+      status: status as any,
+      ...(deliveryAgentId ? { deliveryAgentId } : {})
+    },
   });
 };
 const getAllOrders = async () => {
   const orders = await prisma.order.findMany({
     include: {
+      customer: true,
       orderItems: {
         include: { medicine: true },
       },
@@ -140,6 +158,38 @@ const getAllOrders = async () => {
   return orders;
 };
 
+const getAssignedOrders = async (agentId: string) => {
+  return await prisma.order.findMany({
+    where: { 
+      deliveryAgentId: agentId,
+      status: { notIn: ["DELIVERED", "CANCELLED"] }
+    },
+    include: {
+      customer: true,
+      orderItems: {
+        include: { medicine: true },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+};
+
+const getDeliveryHistory = async (agentId: string) => {
+  return await prisma.order.findMany({
+    where: { 
+      deliveryAgentId: agentId,
+      status: "DELIVERED"
+    },
+    include: {
+      customer: true,
+      orderItems: {
+        include: { medicine: true },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+};
+
 export const orderService = {
   createOrder,
   getMyOrders,
@@ -147,4 +197,6 @@ export const orderService = {
   getSellerOrders,
   updateOrderStatus,
   getAllOrders,
+  getAssignedOrders,
+  getDeliveryHistory,
 };

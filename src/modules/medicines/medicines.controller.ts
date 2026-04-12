@@ -25,15 +25,14 @@ const getAllMedicinesSchema = z.object({
   sellerId: z.string().optional(),
 });
 const updateMedicineSchema = createMedicineSchema.partial();
-
 const addMedicine = async (req: Request, res: Response) => {
   try {
-    const user = req.user;
-    if (!user)
+    const user = (req as any).user;
+    if (!user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
     const parsedBody = createMedicineSchema.parse(req.body);
-
     const result = await medicinesService.addMedicine(parsedBody, user.id);
 
     res.status(201).json({
@@ -41,12 +40,10 @@ const addMedicine = async (req: Request, res: Response) => {
       message: "Medicine created successfully",
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Medicine creation failed",
-      error: err?.errors || err.message,
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
   }
 };
 
@@ -92,12 +89,10 @@ const getAllMedicines = async (req: Request, res: Response) => {
       },
       data: result.medicines,
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to fetch medicines",
-      error: err?.errors || err.message,
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
   }
 };
 
@@ -107,10 +102,9 @@ const getMedicineById = async (req: Request, res: Response) => {
     const result = await medicinesService.getMedicineById(id as string);
 
     if (!result) {
-      return res.status(404).json({
-        success: false,
-        message: "Medicine not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Medicine not found" });
     }
 
     res.status(200).json({
@@ -118,20 +112,20 @@ const getMedicineById = async (req: Request, res: Response) => {
       message: "Medicine details fetched successfully",
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to fetch medicine",
-      error: err.message,
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
   }
 };
+
 const updateMedicine = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user = req.user;
-    if (!user)
+    const user = (req as any).user;
+    if (!user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
     const parsedBody = updateMedicineSchema.parse(req.body);
     const result = await medicinesService.updateMedicine(
@@ -145,36 +139,34 @@ const updateMedicine = async (req: Request, res: Response) => {
       message: "Medicine updated successfully",
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Update failed",
-      error: err?.errors || err.message,
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
   }
 };
 
 const deleteMedicine = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user = req.user;
-    if (!user)
+    const user = (req as any).user;
+    if (!user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-    await medicinesService.deleteMedicine(id as string, user.id);
+    await medicinesService.deleteMedicine(id as string, user.id, user.role);
 
     res.status(200).json({
       success: true,
       message: "Medicine deleted successfully",
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Deletion failed",
-      error: err.message,
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
   }
 };
+
 export const medicinesController = {
   addMedicine,
   getAllMedicines,

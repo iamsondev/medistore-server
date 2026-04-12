@@ -9,11 +9,11 @@ const createCategory = async (req: Request, res: Response) => {
       message: "Category created successfully",
       data: result,
     });
-  } catch (e: any) {
-    res.status(400).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Category creation failed",
-      details: e.message,
+      message: "Failed to create category",
+      error,
     });
   }
 };
@@ -25,11 +25,11 @@ const getCategory = async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Category fetch failed",
-      Error: err.message,
+      message: "Failed to get categories",
+      error,
     });
   }
 };
@@ -46,11 +46,11 @@ const updateCategory = async (req: Request, res: Response) => {
       message: "Category updated successfully",
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Category update failed",
-      Error: err.message,
+      message: "Failed to update category",
+      error,
     });
   }
 };
@@ -64,11 +64,11 @@ const deleteCategory = async (req: Request, res: Response) => {
       message: "Category deleted successfully",
       data: null,
     });
-  } catch (err: any) {
-    res.status(400).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Category deletion failed",
-      Error: err.message,
+      message: "Failed to delete category",
+      error,
     });
   }
 };

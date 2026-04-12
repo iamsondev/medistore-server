@@ -25,8 +25,8 @@ export const auth = betterAuth({
       enabled: false,
     },
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
     },
   },
 
@@ -127,8 +127,11 @@ export const auth = betterAuth({
 
         console.log("Verification email sent:", info.messageId);
       } catch (err) {
-        console.error(err);
-        throw err;
+        // ⚠️  Do NOT re-throw here. If we throw, Better Auth rolls back the
+        // entire sign-up and returns "FAILED_TO_CREATE_USER" (422) to the client.
+        // The user is already created in the DB at this point — just log the
+        // email failure so we can debug SMTP issues without breaking sign-up.
+        console.error("[sendVerificationEmail] Failed to send email:", err);
       }
     },
   },
@@ -139,15 +142,13 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       redirectURI:
-        "https://medistore-server-fawn.vercel.app/api/auth/callback/google",
+        `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
     },
   },
 
   trustedOrigins: [
     process.env.BETTER_AUTH_URL!,
     process.env.APP_URL!,
-    "https://medistore-client-bice.vercel.app",
-    "https://medistore-server-fawn.vercel.app",
     "http://localhost:5000",
     "http://localhost:3000",
   ],

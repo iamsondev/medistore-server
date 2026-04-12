@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { AdminService } from "./admin.service.js";
 
-const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsers = async (req: Request, res: Response) => {
   try {
     const result = await AdminService.getAllUsersFromDB();
     res.status(200).json({
@@ -10,39 +10,42 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error,
+    });
   }
 };
 
-const updateUserStatus = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const updateUserStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, role } = req.body;
 
-    const result = await AdminService.updateUserStatusInDB(
+    const adminId = req.user?.id as string;
+
+    const result = await AdminService.updateUserRoleStatusInDB(
       id as string,
-      status,
+      { status, role },
+      adminId
     );
 
     res.status(200).json({
       success: true,
-      message: "User status updated successfully",
+      message: "User updated successfully",
       data: result,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error,
+    });
   }
 };
 
-const getStatistics = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const getStatistics = async (req: Request, res: Response) => {
   try {
     const result = await AdminService.getPlatformStatistics();
 
@@ -52,7 +55,20 @@ const getStatistics = async (
       data: result,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error,
+    });
+  }
+};
+
+const getDeliveryAgents = async (req: Request, res: Response) => {
+  try {
+    const result = await AdminService.getDeliveryAgentsFromDB();
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as any).message });
   }
 };
 
@@ -60,4 +76,5 @@ export const AdminController = {
   getAllUsers,
   updateUserStatus,
   getStatistics,
+  getDeliveryAgents,
 };

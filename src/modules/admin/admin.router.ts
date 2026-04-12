@@ -4,14 +4,20 @@ import { AdminController } from "./admin.controller.js";
 
 const router = express.Router();
 
-router.get("/statistics", auth(userRole.ADMIN), AdminController.getStatistics);
+router.get("/statistics", auth(userRole.ADMIN, userRole.MODERATOR), AdminController.getStatistics);
 
-router.get("/users", auth(userRole.ADMIN), AdminController.getAllUsers);
+router.get("/users", auth(userRole.ADMIN, userRole.MODERATOR), AdminController.getAllUsers);
 
 router.patch(
   "/users/:id",
   auth(userRole.ADMIN),
   AdminController.updateUserStatus,
+);
+
+router.get(
+  "/delivery-agents",
+  auth(userRole.ADMIN),
+  AdminController.getDeliveryAgents,
 );
 
 export const AdminRouter: Router = router;

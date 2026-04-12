@@ -1,12 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { ReviewService } from "./reviews.service.js";
 import { ReviewValidation } from "./reviews.validation.js";
 
-const createReview = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const createReview = async (req: Request, res: Response) => {
   try {
     const validatedData = ReviewValidation.createReviewSchema.parse(req.body);
     const userId = (req as any).user.id;
@@ -16,8 +12,8 @@ const createReview = async (
       message: "review added successfully",
       data: result,
     });
-  } catch (error: any) {
-    next(error);
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as any).message });
   }
 };
 
@@ -27,16 +23,21 @@ const getMedicineReviews = async (req: Request, res: Response) => {
       req.params.medicineId as any,
     );
     res.status(200).json({ success: true, data: result });
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as any).message });
   }
 };
 
-const updateReview = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const getAllReviews = async (req: Request, res: Response) => {
+  try {
+    const result = await ReviewService.getAllReviews();
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as any).message });
+  }
+};
+
+const updateReview = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = (req as any).user.id;
@@ -52,15 +53,11 @@ const updateReview = async (
       data: result,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, message: (error as any).message });
   }
 };
 
-const deleteReview = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const deleteReview = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = (req as any).user.id;
@@ -72,13 +69,14 @@ const deleteReview = async (
       data: null,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, message: (error as any).message });
   }
 };
 
 export const ReviewController = {
   createReview,
   getMedicineReviews,
+  getAllReviews,
   updateReview,
   deleteReview,
 };

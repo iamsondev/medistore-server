@@ -5,6 +5,8 @@ export enum userRole {
   CUSTOMER = "CUSTOMER",
   SELLER = "SELLER",
   ADMIN = "ADMIN",
+  MODERATOR = "MODERATOR",
+  DELIVERY_AGENT = "DELIVERY_AGENT",
 }
 declare global {
   namespace Express {
