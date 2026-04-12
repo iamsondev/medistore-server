@@ -4,6 +4,8 @@ export var userRole;
     userRole["CUSTOMER"] = "CUSTOMER";
     userRole["SELLER"] = "SELLER";
     userRole["ADMIN"] = "ADMIN";
+    userRole["MODERATOR"] = "MODERATOR";
+    userRole["DELIVERY_AGENT"] = "DELIVERY_AGENT";
 })(userRole || (userRole = {}));
 const auth = (...roles) => {
     return async (req, res, next) => {

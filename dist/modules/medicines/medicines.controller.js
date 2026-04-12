@@ -25,8 +25,9 @@ const updateMedicineSchema = createMedicineSchema.partial();
 const addMedicine = async (req, res) => {
     try {
         const user = req.user;
-        if (!user)
+        if (!user) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
         const parsedBody = createMedicineSchema.parse(req.body);
         const result = await medicinesService.addMedicine(parsedBody, user.id);
         res.status(201).json({
@@ -35,12 +36,10 @@ const addMedicine = async (req, res) => {
             data: result,
         });
     }
-    catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Medicine creation failed",
-            error: err?.errors || err.message,
-        });
+    catch (error) {
+        res
+            .status(500)
+            .json({ success: false, message: "Internal server error", error });
     }
 };
 const getAllMedicines = async (req, res) => {
@@ -77,12 +76,10 @@ const getAllMedicines = async (req, res) => {
             data: result.medicines,
         });
     }
-    catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Failed to fetch medicines",
-            error: err?.errors || err.message,
-        });
+    catch (error) {
+        res
+            .status(500)
+            .json({ success: false, message: "Internal server error", error });
     }
 };
 const getMedicineById = async (req, res) => {
@@ -90,10 +87,9 @@ const getMedicineById = async (req, res) => {
         const { id } = req.params;
         const result = await medicinesService.getMedicineById(id);
         if (!result) {
-            return res.status(404).json({
-                success: false,
-                message: "Medicine not found",
-            });
+            return res
+                .status(404)
+                .json({ success: false, message: "Medicine not found" });
         }
         res.status(200).json({
             success: true,
@@ -101,20 +97,19 @@ const getMedicineById = async (req, res) => {
             data: result,
         });
     }
-    catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Failed to fetch medicine",
-            error: err.message,
-        });
+    catch (error) {
+        res
+            .status(500)
+            .json({ success: false, message: "Internal server error", error });
     }
 };
 const updateMedicine = async (req, res) => {
     try {
         const { id } = req.params;
         const user = req.user;
-        if (!user)
+        if (!user) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
         const parsedBody = updateMedicineSchema.parse(req.body);
         const result = await medicinesService.updateMedicine(id, user.id, parsedBody);
         res.status(200).json({
@@ -123,32 +118,29 @@ const updateMedicine = async (req, res) => {
             data: result,
         });
     }
-    catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Update failed",
-            error: err?.errors || err.message,
-        });
+    catch (error) {
+        res
+            .status(500)
+            .json({ success: false, message: "Internal server error", error });
     }
 };
 const deleteMedicine = async (req, res) => {
     try {
         const { id } = req.params;
         const user = req.user;
-        if (!user)
+        if (!user) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
-        await medicinesService.deleteMedicine(id, user.id);
+        }
+        await medicinesService.deleteMedicine(id, user.id, user.role);
         res.status(200).json({
             success: true,
             message: "Medicine deleted successfully",
         });
     }
-    catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Deletion failed",
-            error: err.message,
-        });
+    catch (error) {
+        res
+            .status(500)
+            .json({ success: false, message: "Internal server error", error });
     }
 };
 export const medicinesController = {

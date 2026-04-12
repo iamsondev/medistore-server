@@ -15,6 +15,7 @@ const createOrderSchema = z
     .strict();
 const updateStatusSchema = z.object({
     status: z.enum(["PLACED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELED"]),
+    deliveryAgentId: z.string().optional(),
 });
 export const OrderValidation = {
     createOrderSchema,

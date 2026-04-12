@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { AIService } from "../ai/ai.service.js";
 const createReview = async (userId, data) => {
     const hasPurchased = await prisma.order.findFirst({
         where: {
@@ -18,6 +19,11 @@ const createReview = async (userId, data) => {
     });
     if (alreadyReviewed) {
         throw new Error("You have already submitted a review for this medicine.");
+    }
+    // AI Integration: Automated Review Moderation
+    const isToxic = await AIService.checkReviewToxicity(data.comment);
+    if (isToxic) {
+        throw new Error("Your review was flagged by our AI for containing inappropriate or toxic language. Please revise it.");
     }
     return await prisma.review.create({
         data: {
@@ -47,11 +53,21 @@ const updateReview = async (userId, reviewId, payload) => {
         data: payload,
     });
 };
+const getAllReviews = async () => {
+    return await prisma.review.findMany({
+        include: {
+            User: { select: { name: true, image: true } },
+            medicine: { select: { name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+};
 const deleteReview = async (userId, reviewId) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     const isOwner = await prisma.review.findUnique({
         where: { id: reviewId, userId: userId },
     });
-    if (!isOwner) {
+    if (!isOwner && user?.role !== "ADMIN" && user?.role !== "MODERATOR") {
         throw new Error("You are not authorized to delete this review!");
     }
     return await prisma.review.delete({
@@ -61,6 +77,7 @@ const deleteReview = async (userId, reviewId) => {
 export const ReviewService = {
     createReview,
     getMedicineReviews,
+    getAllReviews,
     updateReview,
     deleteReview,
 };

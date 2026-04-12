@@ -1,0 +1,80 @@
+import Stripe from "stripe";
+import { prisma } from "../../lib/prisma.js";
+// Lazy initialization to prevent module crash if STRIPE_SECRET_KEY is missing at startup
+const getStripe = () => {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key)
+        throw new Error("STRIPE_SECRET_KEY is not configured.");
+    return new Stripe(key);
+};
+const createCheckoutSession = async (orderId, userId) => {
+    const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+            orderItems: {
+                include: { medicine: true },
+            },
+        },
+    });
+    if (!order) {
+        throw new Error("Order not found");
+    }
+    if (order.customerId !== userId) {
+        throw new Error("Unauthorized to access this order");
+    }
+    const clientUrl = process.env.CLIENT_URL || process.env.APP_URL || "http://localhost:5000";
+    const session = await getStripe().checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: order.orderItems.map((item) => ({
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: item.medicine.name,
+                    images: item.medicine.image ? [item.medicine.image] : [],
+                },
+                unit_amount: Math.round(item.price * 100), // Stripe expects cents
+            },
+            quantity: item.quantity,
+        })),
+        mode: "payment",
+        success_url: `${clientUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+        cancel_url: `${clientUrl}/payment/cancel`,
+        metadata: {
+            orderId: order.id,
+        },
+    });
+    return session;
+};
+const verifyPayment = async (sessionId) => {
+    const session = await getStripe().checkout.sessions.retrieve(sessionId);
+    if (session.payment_status === "paid") {
+        const orderId = session.metadata?.orderId;
+        if (orderId) {
+            await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                    paymentStatus: "PAID",
+                    transactionId: session.payment_intent,
+                },
+            });
+        }
+        return { success: true, orderId };
+    }
+    return { success: false };
+};
+const createPaymentIntent = async (amount) => {
+    const paymentIntent = await getStripe().paymentIntents.create({
+        amount: Math.round(amount * 100),
+        currency: "usd",
+        payment_method_types: ["card"],
+    });
+    return {
+        clientSecret: paymentIntent.client_secret,
+    };
+};
+export const paymentService = {
+    createCheckoutSession,
+    verifyPayment,
+    createPaymentIntent,
+};
+//# sourceMappingURL=payment.service.js.map

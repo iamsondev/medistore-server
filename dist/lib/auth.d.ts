@@ -2,6 +2,15 @@ export declare const auth: import("better-auth/*").Auth<{
     baseURL: string;
     secret: string;
     database: (options: import("better-auth/*").BetterAuthOptions) => import("better-auth/*").DBAdapter<import("better-auth/*").BetterAuthOptions>;
+    advanced: {
+        crossSubDomainCookies: {
+            enabled: false;
+        };
+        defaultCookieAttributes: {
+            sameSite: "none" | "lax";
+            secure: boolean;
+        };
+    };
     user: {
         additionalFields: {
             role: {
@@ -34,6 +43,7 @@ export declare const auth: import("better-auth/*").Auth<{
             accessType: "offline";
             clientId: string;
             clientSecret: string;
+            redirectURI: string;
         };
     };
     trustedOrigins: string[];

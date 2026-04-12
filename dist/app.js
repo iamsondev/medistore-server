@@ -9,18 +9,53 @@ import { ReviewsRouter } from "./modules/reviews/reviews.router.js";
 import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import notFound from "./middlewares/notFound.js";
 import { AdminRouter } from "./modules/admin/admin.router.js";
+import { paymentRoutes } from "./modules/payment/payment.router.js";
+import { AIRouter } from "./modules/ai/ai.router.js";
 const app = express();
-app.use(cors({
-    origin: process.env.APP_URL || "http://localhost:5000",
+// Request Logger to debug 404 issues
+app.use((req, res, next) => {
+    console.log(`Incoming Request: ${req.method} ${req.url}`);
+    next();
+});
+const corsOptions = {
+    origin: [
+        process.env.APP_URL,
+        process.env.BETTER_AUTH_URL,
+        "http://localhost:3000",
+        "http://localhost:5000",
+    ].filter(Boolean),
     credentials: true,
-}));
-app.all("/api/auth/*splat", toNodeHandler(auth));
+};
+app.use(cors(corsOptions));
+// Restoring original auth handler but with regex to fix Express 5 PathError
+app.all(/\/api\/auth($|\/.*)/, async (req, res) => {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+        process.env.APP_URL,
+        process.env.BETTER_AUTH_URL,
+        "http://localhost:3000",
+        "http://localhost:5000",
+    ].filter(Boolean);
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
+    if (req.method === "OPTIONS") {
+        res.status(200).end();
+        return;
+    }
+    return toNodeHandler(auth)(req, res);
+});
 app.use(express.json());
 app.use("/api/categories", categoriesRouter);
 app.use("/api/medicines", medicinesRouter);
 app.use("/api/orders", OrdersRouter);
 app.use("/api/reviews", ReviewsRouter);
 app.use("/api/admin", AdminRouter);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/ai", AIRouter);
 app.get("/", (req, res) => {
     res.send("Hello, 2026");
 });

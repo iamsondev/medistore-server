@@ -6,5 +6,7 @@ export declare const OrderController: {
     getSellerOrders: (req: Request, res: Response) => Promise<void>;
     updateOrderStatus: (req: Request, res: Response) => Promise<void>;
     getAllOrders: (req: Request, res: Response) => Promise<void>;
+    getMyAssignedOrders: (req: Request, res: Response) => Promise<void>;
+    getDeliveryHistory: (req: Request, res: Response) => Promise<void>;
 };
 //# sourceMappingURL=orders.controller.d.ts.map

@@ -10,11 +10,14 @@ const createOrder = async (userId, payload) => {
                 throw new Error(`Insufficient stock for ${medicine?.name || "selected medicine"}. Available: ${medicine?.stock || 0}`);
             }
         }
+        const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const order = await tx.order.create({
             data: {
                 customerId: userId,
                 address,
                 status: "PLACED",
+                totalAmount,
+                paymentStatus: "PENDING",
                 orderItems: {
                     create: items.map((item) => ({
                         medicineId: item.medicineId,
@@ -83,15 +86,20 @@ const getSellerOrders = async (sellerId) => {
         orderBy: { createdAt: "desc" },
     });
 };
-const updateOrderStatus = async (orderId, sellerId, status) => {
+const updateOrderStatus = async (orderId, userId, status, deliveryAgentId) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     const order = await prisma.order.findFirst({
         where: {
             id: orderId,
-            orderItems: {
-                some: {
-                    medicine: { sellerId: sellerId },
-                },
-            },
+            ...(user?.role === "ADMIN" ? {} :
+                user?.role === "DELIVERY_AGENT" ? { deliveryAgentId: userId } :
+                    {
+                        orderItems: {
+                            some: {
+                                medicine: { sellerId: userId },
+                            },
+                        },
+                    })
         },
     });
     if (!order) {
@@ -99,12 +107,16 @@ const updateOrderStatus = async (orderId, sellerId, status) => {
     }
     return await prisma.order.update({
         where: { id: orderId },
-        data: { status: status },
+        data: {
+            status: status,
+            ...(deliveryAgentId ? { deliveryAgentId } : {})
+        },
     });
 };
 const getAllOrders = async () => {
     const orders = await prisma.order.findMany({
         include: {
+            customer: true,
             orderItems: {
                 include: { medicine: true },
             },
@@ -113,6 +125,36 @@ const getAllOrders = async () => {
     });
     return orders;
 };
+const getAssignedOrders = async (agentId) => {
+    return await prisma.order.findMany({
+        where: {
+            deliveryAgentId: agentId,
+            status: { notIn: ["DELIVERED", "CANCELLED"] }
+        },
+        include: {
+            customer: true,
+            orderItems: {
+                include: { medicine: true },
+            },
+        },
+        orderBy: { updatedAt: "desc" },
+    });
+};
+const getDeliveryHistory = async (agentId) => {
+    return await prisma.order.findMany({
+        where: {
+            deliveryAgentId: agentId,
+            status: "DELIVERED"
+        },
+        include: {
+            customer: true,
+            orderItems: {
+                include: { medicine: true },
+            },
+        },
+        orderBy: { updatedAt: "desc" },
+    });
+};
 export const orderService = {
     createOrder,
     getMyOrders,
@@ -120,5 +162,7 @@ export const orderService = {
     getSellerOrders,
     updateOrderStatus,
     getAllOrders,
+    getAssignedOrders,
+    getDeliveryHistory,
 };
 //# sourceMappingURL=orders.service.js.map

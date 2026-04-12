@@ -20,6 +20,7 @@ export declare const OrderValidation: {
             DELIVERED: "DELIVERED";
             CANCELED: "CANCELED";
         }>;
+        deliveryAgentId: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>;
 };
 //# sourceMappingURL=orders.validation.d.ts.map

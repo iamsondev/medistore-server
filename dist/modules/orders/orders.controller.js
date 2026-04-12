@@ -12,10 +12,7 @@ const createOrder = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message || "Failed to place order",
-        });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 const getMyOrders = async (req, res) => {
@@ -50,7 +47,7 @@ const getOrderById = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 const getSellerOrders = async (req, res) => {
@@ -70,9 +67,9 @@ const getSellerOrders = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = OrderValidation.updateStatusSchema.parse(req.body);
+        const { status, deliveryAgentId } = OrderValidation.updateStatusSchema.parse(req.body);
         const user = req.user;
-        const result = await orderService.updateOrderStatus(id, user.id, status);
+        const result = await orderService.updateOrderStatus(id, user.id, status, deliveryAgentId);
         res.status(200).json({
             success: true,
             message: `Order status updated to ${status}`,
@@ -80,12 +77,32 @@ const updateOrderStatus = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 const getAllOrders = async (req, res) => {
     try {
         const result = await orderService.getAllOrders();
+        res.status(200).json({ success: true, data: result });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+const getMyAssignedOrders = async (req, res) => {
+    try {
+        const user = req.user;
+        const result = await orderService.getAssignedOrders(user.id);
+        res.status(200).json({ success: true, data: result });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+const getDeliveryHistory = async (req, res) => {
+    try {
+        const user = req.user;
+        const result = await orderService.getDeliveryHistory(user.id);
         res.status(200).json({ success: true, data: result });
     }
     catch (error) {
@@ -99,5 +116,7 @@ export const OrderController = {
     getSellerOrders,
     updateOrderStatus,
     getAllOrders,
+    getMyAssignedOrders,
+    getDeliveryHistory,
 };
 //# sourceMappingURL=orders.controller.js.map

@@ -71,14 +71,17 @@ const updateMedicine = async (id, userId, data) => {
         data,
     });
 };
-const deleteMedicine = async (id, userId) => {
-    console.log("DB delete - id:", id, "userId:", userId);
+const deleteMedicine = async (id, userId, role) => {
+    console.log("DB delete - id:", id, "userId:", userId, "role:", role);
     try {
+        const medicine = await prisma.medicine.findUnique({ where: { id } });
+        if (!medicine)
+            throw new Error("Medicine not found");
+        if (role === "SELLER" && medicine.sellerId !== userId) {
+            throw new Error("You can only delete your own medicines");
+        }
         const result = await prisma.medicine.delete({
-            where: {
-                id,
-                sellerId: userId,
-            },
+            where: { id },
         });
         console.log("Deleted:", result);
         return result;

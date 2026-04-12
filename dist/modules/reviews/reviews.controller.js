@@ -1,6 +1,6 @@
 import { ReviewService } from "./reviews.service.js";
 import { ReviewValidation } from "./reviews.validation.js";
-const createReview = async (req, res, next) => {
+const createReview = async (req, res) => {
     try {
         const validatedData = ReviewValidation.createReviewSchema.parse(req.body);
         const userId = req.user.id;
@@ -12,7 +12,7 @@ const createReview = async (req, res, next) => {
         });
     }
     catch (error) {
-        next(error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 const getMedicineReviews = async (req, res) => {
@@ -21,10 +21,19 @@ const getMedicineReviews = async (req, res) => {
         res.status(200).json({ success: true, data: result });
     }
     catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
-const updateReview = async (req, res, next) => {
+const getAllReviews = async (req, res) => {
+    try {
+        const result = await ReviewService.getAllReviews();
+        res.status(200).json({ success: true, data: result });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+const updateReview = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
@@ -36,10 +45,10 @@ const updateReview = async (req, res, next) => {
         });
     }
     catch (error) {
-        next(error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
-const deleteReview = async (req, res, next) => {
+const deleteReview = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
@@ -51,12 +60,13 @@ const deleteReview = async (req, res, next) => {
         });
     }
     catch (error) {
-        next(error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 export const ReviewController = {
     createReview,
     getMedicineReviews,
+    getAllReviews,
     updateReview,
     deleteReview,
 };

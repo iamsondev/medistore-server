@@ -26,6 +26,23 @@ export declare const ReviewService: {
         rating: number;
         comment: string;
     })[]>;
+    getAllReviews: () => Promise<({
+        medicine: {
+            name: string;
+        };
+        User: {
+            name: string;
+            image: string;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        medicineId: string;
+        rating: number;
+        comment: string;
+    })[]>;
     updateReview: (userId: string, reviewId: string, payload: {
         rating?: number;
         comment?: string;

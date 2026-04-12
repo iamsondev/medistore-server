@@ -75,7 +75,7 @@ export declare const medicinesService: {
             image: string | null;
             createdAt: Date;
             updatedAt: Date;
-            role: string | null;
+            role: import("@prisma/client").$Enums.Role;
             status: string | null;
             email: string;
             emailVerified: boolean;
@@ -108,7 +108,7 @@ export declare const medicinesService: {
         sellerId: string;
         categoryId: string;
     }>;
-    deleteMedicine: (id: string, userId: string) => Promise<{
+    deleteMedicine: (id: string, userId: string, role: string) => Promise<{
         name: string;
         id: string;
         image: string;

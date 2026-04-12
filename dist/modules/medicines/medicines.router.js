@@ -6,6 +6,6 @@ router.post("/", auth(userRole.SELLER), medicinesController.addMedicine);
 router.get("/", medicinesController.getAllMedicines);
 router.get("/:id", medicinesController.getMedicineById);
 router.put("/:id", auth(userRole.SELLER), medicinesController.updateMedicine);
-router.delete("/:id", auth(userRole.SELLER), medicinesController.deleteMedicine);
+router.delete("/:id", auth(userRole.SELLER, userRole.MODERATOR, userRole.ADMIN), medicinesController.deleteMedicine);
 export const medicinesRouter = router;
 //# sourceMappingURL=medicines.router.js.map

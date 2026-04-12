@@ -3,17 +3,20 @@ export declare const AdminService: {
         name: string;
         id: string;
         createdAt: Date;
-        role: string;
+        role: import("@prisma/client").$Enums.Role;
         status: string;
         email: string;
     }[]>;
-    updateUserStatusInDB: (id: string, status: string) => Promise<{
+    updateUserRoleStatusInDB: (id: string, payload: {
+        status?: string;
+        role?: string;
+    }, adminId: string) => Promise<{
         name: string | null;
         id: string;
         image: string | null;
         createdAt: Date;
         updatedAt: Date;
-        role: string | null;
+        role: import("@prisma/client").$Enums.Role;
         status: string | null;
         email: string;
         emailVerified: boolean;
@@ -21,9 +24,15 @@ export declare const AdminService: {
     getPlatformStatistics: () => Promise<{
         totalUsers: number;
         totalSellers: number;
+        totalAgents: number;
         totalMedicines: number;
         totalOrders: number;
         totalRevenue: number;
     }>;
+    getDeliveryAgentsFromDB: () => Promise<{
+        name: string;
+        id: string;
+        email: string;
+    }[]>;
 };
 //# sourceMappingURL=admin.service.d.ts.map

@@ -2,7 +2,9 @@ import { NextFunction, Request, Response } from "express";
 export declare enum userRole {
     CUSTOMER = "CUSTOMER",
     SELLER = "SELLER",
-    ADMIN = "ADMIN"
+    ADMIN = "ADMIN",
+    MODERATOR = "MODERATOR",
+    DELIVERY_AGENT = "DELIVERY_AGENT"
 }
 declare global {
     namespace Express {

@@ -17,6 +17,15 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
+    advanced: {
+        crossSubDomainCookies: {
+            enabled: false,
+        },
+        defaultCookieAttributes: {
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV === "production",
+        },
+    },
     user: {
         additionalFields: {
             role: {
@@ -110,8 +119,11 @@ export const auth = betterAuth({
                 console.log("Verification email sent:", info.messageId);
             }
             catch (err) {
-                console.error(err);
-                throw err;
+                // ⚠️  Do NOT re-throw here. If we throw, Better Auth rolls back the
+                // entire sign-up and returns "FAILED_TO_CREATE_USER" (422) to the client.
+                // The user is already created in the DB at this point — just log the
+                // email failure so we can debug SMTP issues without breaking sign-up.
+                console.error("[sendVerificationEmail] Failed to send email:", err);
             }
         },
     },
@@ -121,8 +133,18 @@ export const auth = betterAuth({
             accessType: "offline",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            redirectURI: process.env.NODE_ENV === "production"
+                ? `${process.env.APP_URL}/api/auth/callback/google`
+                : "http://localhost:5000/api/auth/callback/google",
         },
     },
-    trustedOrigins: [process.env.BETTER_AUTH_URL, process.env.APP_URL],
+    trustedOrigins: [
+        process.env.BETTER_AUTH_URL,
+        process.env.APP_URL,
+        process.env.CLIENT_URL,
+        "https://medistore-client-bice.vercel.app",
+        "http://localhost:5000",
+        "http://localhost:3000",
+    ],
 });
 //# sourceMappingURL=auth.js.map
