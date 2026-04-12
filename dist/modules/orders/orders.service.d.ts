@@ -195,7 +195,41 @@ export declare const orderService: {
         customerId: string;
         deliveryAgentId: string | null;
     })[]>;
-    getAssignedOrders: (agentId: string) => Promise<{
+    getAssignedOrders: (agentId: string) => Promise<({
+        orderItems: ({
+            medicine: {
+                name: string;
+                id: string;
+                image: string;
+                description: string;
+                createdAt: Date;
+                updatedAt: Date;
+                price: number;
+                stock: number;
+                viewCount: number;
+                manufacturer: string;
+                sellerId: string;
+                categoryId: string;
+            };
+        } & {
+            id: string;
+            price: number;
+            quantity: number;
+            medicineId: string;
+            orderId: string;
+        })[];
+        customer: {
+            name: string | null;
+            id: string;
+            image: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: import("@prisma/client").$Enums.Role;
+            status: string | null;
+            email: string;
+            emailVerified: boolean;
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -207,7 +241,7 @@ export declare const orderService: {
         paymentMethod: string;
         customerId: string;
         deliveryAgentId: string | null;
-    }[]>;
+    })[]>;
     getDeliveryHistory: (agentId: string) => Promise<({
         orderItems: ({
             medicine: {

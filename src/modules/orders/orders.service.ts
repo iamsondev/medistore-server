@@ -159,10 +159,11 @@ const getAllOrders = async () => {
 };
 
 const getAssignedOrders = async (agentId: string) => {
-  return await prisma.order.findMany({
+  console.log(`[OrderService] Fetching assigned orders for agentId: ${agentId}`);
+  const orders = await prisma.order.findMany({
     where: { 
       deliveryAgentId: agentId,
-      status: { notIn: ["DELIVERED", "CANCELLED"] }
+      status: { notIn: ["DELIVERED", "CANCELED"] }
     },
     include: {
       customer: true,
@@ -172,6 +173,8 @@ const getAssignedOrders = async (agentId: string) => {
     },
     orderBy: { updatedAt: "desc" },
   });
+  console.log(`[OrderService] Found ${orders.length} assigned orders for agentId: ${agentId}`);
+  return orders;
 };
 
 const getDeliveryHistory = async (agentId: string) => {
