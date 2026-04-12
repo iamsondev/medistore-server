@@ -13,6 +13,13 @@ import { paymentRoutes } from "./modules/payment/payment.router.js";
 import { AIRouter } from "./modules/ai/ai.router.js";
 
 const app: Application = express();
+
+// Request Logger to debug 404 issues
+app.use((req, res, next) => {
+  console.log(`Incoming Request: ${req.method} ${req.url}`);
+  next();
+});
+
 const corsOptions = {
   origin: [
     process.env.APP_URL!,
