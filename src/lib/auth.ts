@@ -141,8 +141,9 @@ export const auth = betterAuth({
       accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      redirectURI:
-        `${process.env.APP_URL}/api/auth/callback/google`,
+      redirectURI: process.env.NODE_ENV === "production" 
+        ? `${process.env.APP_URL}/api/auth/callback/google`
+        : "http://localhost:5000/api/auth/callback/google",
     },
   },
 
